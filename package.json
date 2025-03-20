@@ -1,0 +1,16 @@
+{
+  "name": "wichy-3.0",
+  "module": "index.js",
+  "dependencies": {
+    "discord-api-types": "^0.37.119",
+    "discord-player": "^7.1.0",
+    "discord-player-youtubei": "^1.4.2",
+    "discord.js": "^14.18.0",
+    "dotenv": "^16.4.7"
+  },
+  "private": true,
+  "scripts": {
+    "start": "node index.js"
+  },
+  "type": "commonjs"
+}
