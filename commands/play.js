@@ -1,6 +1,5 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const { EmbedBuilder, PermissionFlagsBits } = require("discord.js");
-const fs = require('fs');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -38,27 +37,30 @@ module.exports = {
         const query = interaction.options.getString("query"); 
 
 
-        const queue = player.nodes.create(interaction.guild.id, {voiceChannel: vc});
+        const queue = await player.nodes.create(interaction.guild.id, {
+            requestedBy: interaction.user,
+            metadata: {
+                channel: interaction.channel,
+            }
+        });
         const result = await player.search(query);
-
-        fs.writeFile("output/result.json", JSON.stringify(result, null, 2), (err) => {});
         
 
-        const entry = queue.tasksQueue.acquire();
+        const entry = await queue.tasksQueue.acquire();
 
         await entry.getTask();
 
-        queue.addTrack(result.tracks[0]);
+        await queue.addTrack(result.tracks[0]);
         
 
         try {
             if (!queue.connection) await queue.connect(vc);
-            if (!queue.isPlaying()) queue.node.play();
+            if (!queue.isPlaying()) await queue.node.play();
         } catch(error) {
             console.error(error);
             return await interaction.reply({content: "There was an error playing this song."});
         } finally {
-            queue.tasksQueue.release();
+            interaction.reply({content: `Added ${result.tracks[0].title}`});
         }
     },
 };

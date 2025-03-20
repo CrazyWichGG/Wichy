@@ -4,17 +4,19 @@ const { Client, Collection, REST, GatewayIntentBits } = require('discord.js');
 const { Player } = require('discord-player');
 const { YoutubeiExtractor } = require("discord-player-youtubei")
 
-
 const fs = require('fs');
 const path = require('path');
 
 const ENV = process.env
+
+const loadPlayerEvents = require('./events/player');
 
 
 const client = new Client({
     intents: [
       GatewayIntentBits.Guilds,
       GatewayIntentBits.GuildMessages,
+      GatewayIntentBits.MessageContent,
       GatewayIntentBits.GuildVoiceStates
     ],
 });
@@ -38,9 +40,16 @@ for(const file of commandFiles) {
 
 // Add the player on the client
 const player = new Player(client);
-
-
 player.extractors.register(YoutubeiExtractor, {});
+
+
+// load player events
+try {
+    loadPlayerEvents(player, client);
+} catch(error) {
+    console.error(error);
+}
+
 
 
 client.on("interactionCreate", async interaction => {
@@ -58,20 +67,6 @@ client.on("interactionCreate", async interaction => {
     }
 });
 
-
-// player.events.on('playerStart', (queue, track) => {
-//     queue.metadata.channel.send(`Started playing: **${track.title}**`);
-//   });
-
-// player.events.on("error", (queue, error) => {
-//     console.error(error);
-//     queue.metadata.channel.send("An error occurred while playing this song.");
-// });
-
-// player.events.on("playerError", (queue, error) => {
-//     console.error(error);
-//     queue.metadata.channel.send("An error occurred while playing this song.");
-// });
 
 
 client.on("ready", () => {
